@@ -1,0 +1,100 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel='import' href='../bower_components/vaadin-upload/vaadin-upload.html'>
+<link rel='import' href='../bower_components/paper-toast/paper-toast.html'>
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="jd-image">
+  <template>
+    <style include="shared-styles">
+       :host {
+        display: block;
+
+        padding: 10px;
+      }
+    </style>
+
+    <div class="card">
+      
+      <vaadin-upload
+        accept=".jpg"
+        max-files="1"
+        on-files-changed="uploadFile"
+        on-file-reject="showRejectedFileError"
+        on-upload-before="redirectToFirebase">
+        <div class="drop-label">
+          <iron-icon icon="description"></iron-icon>
+          Drop an image of your ugly face here
+        </div>
+      </vaadin-upload>
+      <paper-toast id="rejectToast"></paper-toast>
+    </div>
+  </template>
+
+  <script>
+    class JudgeDaleImage extends Polymer.Element {
+      static get is() {
+        return 'jd-image';
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        // console.log(firebase.storage());
+      }
+
+      uploadFile(file) {
+        // console.log(file);
+      }
+
+      redirectToFirebase(event) {
+        event.preventDefault();
+        const file = event.detail.file;
+        const extension = file.name.split('.')[1];
+
+        const uploadId = firebase
+          .database()
+          .ref('images')
+          .push()
+          .key;
+        
+        const imagesRef = firebase
+          .storage()
+          .ref('images');
+        
+        imagesRef
+          .child(`${uploadId}.${extension}`)
+          .put(file)
+          .then(uploadedFile => {
+            
+            firebase
+              .database()
+              .ref('images')
+              .child(uploadId)
+              .set({
+                judged: false,
+                imageURL: uploadedFile.downloadURL
+              });
+          });
+          
+      }
+
+      showRejectedFileError(event) {
+        console.log('rejected')
+        const toast = this.$.rejectToast;
+        toast.text = 'weee';
+        toast.open();
+      }
+    }
+
+    window.customElements.define(JudgeDaleImage.is, JudgeDaleImage);
+  </script>
+</dom-module>

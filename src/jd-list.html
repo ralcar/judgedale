@@ -1,0 +1,117 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel='import' href='../bower_components/paper-fab/paper-fab.html'>
+<link rel='import' href='../bower_components/iron-icons/iron-icons.html'>
+<link rel='import' href='../bower_components/paper-tabs/paper-tabs.html'>
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel='import' href='../bower_components/paper-card/paper-card.html'>
+<link rel='import' href='../bower_components/paper-button/paper-button.html'>
+<link rel='import' href='../bower_components/polymerfire/polymerfire.html'>
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="my-icons.html">
+
+<dom-module id="jd-list">
+  <template>
+    <style include="shared-styles">
+       :host {
+        display: block;
+
+        padding: 10px;
+      }
+
+      paper-fab {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+      }
+
+      paper-tabs {
+        background-color: blue;
+      }
+</style>
+
+<firebase-query path="images" data="{{images}}"></firebase-query>
+
+    <paper-tabs selected="{{selected}}">
+      <paper-tab>IMAGES</paper-tab>
+      <paper-tab>VIDEOS</paper-tab>
+    </paper-tabs>
+    <iron-pages selected="{{selected}}">
+      <div>
+        <template is="dom-repeat" items="[[images]]" as="item">
+          <paper-card image="[[item.imageURL]]">
+            <div class="card-content">
+              <div class="cafe-header">Cafe Basilico
+                <div class="cafe-location cafe-light">
+                  <iron-icon icon="communication:location-on"></iron-icon>
+                  <span>250ft</span>
+                </div>
+              </div>
+              <div class="cafe-rating">
+                <iron-icon class="star" icon="star"></iron-icon>
+                <iron-icon class="star" icon="star"></iron-icon>
+                <iron-icon class="star" icon="star"></iron-icon>
+                <iron-icon class="star" icon="star"></iron-icon>
+                <iron-icon class="star" icon="star"></iron-icon>
+              </div>
+              <p>$・Italian, Cafe</p>
+              <p class="cafe-light">Small plates, salads &amp; sandwiches in an intimate setting.</p>
+            </div>
+            <div class="card-actions">
+              <div class="horizontal justified">
+                <paper-icon-button icon="icons:event"></paper-icon-button>
+                <paper-button>5:30PM</paper-button>
+                <paper-button>7:30PM</paper-button>
+                <paper-button>9:00PM</paper-button>
+                <paper-button class="cafe-reserve">Reserve</paper-button>
+              </div>
+            </div>
+          </paper-card>
+        </template>
+      </div>
+      <div>
+        <template is="dom-repeat" items="[[images]]" as="image">
+
+        </template>
+      </div>
+    </iron-pages>
+
+
+
+
+    <a href="/image">
+      <paper-fab icon="add" title="Judge me!"></paper-fab>
+    </a>
+  </template>
+
+  <script>
+    class JudgeDaleList extends Polymer.Element {
+      static get is() {
+        return 'jd-list';
+      }
+
+      static get properties() {
+        return {
+          selected: {
+            type: Number,
+            value: 0
+          },
+          images: {
+            type: Array
+          }
+        }
+      }
+    }
+
+    window.customElements.define(JudgeDaleList.is, JudgeDaleList);
+  </script>
+</dom-module>
