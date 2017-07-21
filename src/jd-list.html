@@ -11,13 +11,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel='import' href='../bower_components/paper-fab/paper-fab.html'>
 <link rel='import' href='../bower_components/iron-icons/iron-icons.html'>
-<link rel='import' href='../bower_components/paper-tabs/paper-tabs.html'>
-<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
-<link rel='import' href='../bower_components/paper-card/paper-card.html'>
 <link rel='import' href='../bower_components/paper-button/paper-button.html'>
 <link rel='import' href='../bower_components/polymerfire/polymerfire.html'>
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="my-icons.html">
+<link rel="import" href="jd-card.html">
 
 <dom-module id="jd-list">
   <template>
@@ -37,56 +35,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       paper-tabs {
         background-color: blue;
       }
-</style>
 
-<firebase-query path="images" data="{{images}}"></firebase-query>
+      jd-card {
+        margin-bottom: 15px;
+      }
+    </style>
 
-    <paper-tabs selected="{{selected}}">
-      <paper-tab>IMAGES</paper-tab>
-      <paper-tab>VIDEOS</paper-tab>
-    </paper-tabs>
-    <iron-pages selected="{{selected}}">
-      <div>
-        <template is="dom-repeat" items="[[images]]" as="item">
-          <paper-card image="[[item.imageURL]]">
-            <div class="card-content">
-              <div class="cafe-header">Cafe Basilico
-                <div class="cafe-location cafe-light">
-                  <iron-icon icon="communication:location-on"></iron-icon>
-                  <span>250ft</span>
-                </div>
-              </div>
-              <div class="cafe-rating">
-                <iron-icon class="star" icon="star"></iron-icon>
-                <iron-icon class="star" icon="star"></iron-icon>
-                <iron-icon class="star" icon="star"></iron-icon>
-                <iron-icon class="star" icon="star"></iron-icon>
-                <iron-icon class="star" icon="star"></iron-icon>
-              </div>
-              <p>$・Italian, Cafe</p>
-              <p class="cafe-light">Small plates, salads &amp; sandwiches in an intimate setting.</p>
-            </div>
-            <div class="card-actions">
-              <div class="horizontal justified">
-                <paper-icon-button icon="icons:event"></paper-icon-button>
-                <paper-button>5:30PM</paper-button>
-                <paper-button>7:30PM</paper-button>
-                <paper-button>9:00PM</paper-button>
-                <paper-button class="cafe-reserve">Reserve</paper-button>
-              </div>
-            </div>
-          </paper-card>
-        </template>
-      </div>
-      <div>
-        <template is="dom-repeat" items="[[images]]" as="image">
-
-        </template>
-      </div>
-    </iron-pages>
+    <firebase-query path="images" data="{{images}}"></firebase-query>
 
 
-
+    <template is="dom-repeat" items="[[images]]" as="item">
+      <jd-card image="[[item.imageURL]]"></jd-card>
+    </template>
 
     <a href="/image">
       <paper-fab icon="add" title="Judge me!"></paper-fab>

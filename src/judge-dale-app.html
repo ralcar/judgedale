@@ -24,8 +24,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="my-icons.html">
 
 <link rel="lazy-import" href="jd-list.html">
-<link rel="lazy-import" href="jd-image.html">
-<link rel="lazy-import" href="jd-video.html">
+<link rel="lazy-import" href="jd-add.html">
 <link rel="lazy-import" href="my-view404.html">
 
 <dom-module id="judge-dale-app">
@@ -90,8 +89,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-toolbar>Menu</app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="list" href="list">View One</a>
-          <a name="image" href="image">View Two</a>
-          <a name="video" href="video">View Three</a>
+          <a name="add" href="add">View Two</a>
         </iron-selector>
       </app-drawer>
 
@@ -111,8 +109,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             fallback-selection="view404"
             role="main">
           <jd-list name="list"></jd-list>
-          <jd-image name="image"></jd-image>
-          <jd-video name="video"></jd-video>
+          <jd-add name="add"></jd-add>
           <my-view404 name="view404"></my-view404>
         </iron-pages>
       </app-header-layout>

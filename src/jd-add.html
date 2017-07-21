@@ -1,0 +1,150 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel='import' href='../bower_components/vaadin-upload/vaadin-upload.html'>
+<link rel='import' href='../bower_components/paper-toast/paper-toast.html'>
+<link rel='import' href='../bower_components/paper-radio-group/paper-radio-group.html'>
+<link rel='import' href='../bower_components/paper-button/paper-button.html'>
+<link rel='import' href='../bower_components/iron-image/iron-image.html'>
+<link rel='import' href='../bower_components/paper-input/paper-input.html'>
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="jd-card.html">
+
+<dom-module id="jd-add">
+  <template>
+    <style include="shared-styles">
+       :host {
+        display: block;
+
+        padding: 10px;
+
+        --iron-image-width:150px;
+        --iron-image-height: 150px;
+      }
+
+      
+    </style>
+
+    <div class="card">
+
+      <paper-radio-group selected="{{judgementType}}">
+        <paper-radio-button name="image">Image</paper-radio-button>
+        <paper-radio-button name="video">Video</paper-radio-button>
+      </paper-radio-group>
+
+      <div hidden$="{{addingVideo}}">
+
+        <paper-input label="Ask for Kit´s attention" value="{{question}}"></paper-input>
+
+        <vaadin-upload accept=".jpg" files="{{selectedImages}}" max-files="1" on-files-changed="uploadFile" on-file-reject="showRejectedFileError"
+          on-upload-before="redirectToFirebase">
+          <!-- <div class="drop-label">
+            <iron-icon icon="description"></iron-icon>
+            Drop an image of your ugly face here
+          </div> -->
+        </vaadin-upload>
+
+        <paper-button raised on-tap="addImage">Judge me</paper-button>
+
+      </div>
+      <div hidden$="{{!addingVideo}}">vid</div>
+
+
+      <paper-toast id="rejectToast"></paper-toast>
+    </div>
+    <h1>Preview</h1>
+    <jd-card image="{{previewImage}}" question="{{question}}"></jd-card>
+  </template>
+
+  <script>
+    class JudgeDaleAdd extends Polymer.Element {
+      static get is() {
+        return 'jd-add';
+      }
+
+      static get properties() {
+        return {
+          judgementType: {
+            type: String,
+            value: "image"
+          },
+          addingVideo: {
+            type: Boolean,
+            computed: 'computeIfAddingVideo(judgementType)'
+          },
+          selectedImages: Array,
+          previewImage: String
+        }
+      }
+
+      computeIfAddingVideo(judgementType) {
+        return judgementType === "video";
+      }
+
+
+      uploadFile(file) {
+        // console.log(file);
+      }
+
+      addImage() {
+
+        if (this.selectedImages.length === 0) return;
+
+        const file = this.selectedImages[0];
+        const extension = file.name.split('.')[1];
+        console.log(file);
+        return;
+        const uploadId = firebase
+          .database()
+          .ref('images')
+          .push()
+          .key;
+
+        const imagesRef = firebase
+          .storage()
+          .ref('images');
+
+        imagesRef
+          .child(`${uploadId}.${extension}`)
+          .put(file)
+          .then(uploadedFile => {
+
+            firebase
+              .database()
+              .ref('images')
+              .child(uploadId)
+              .set({
+                judged: false,
+                imageURL: uploadedFile.downloadURL
+              });
+          });
+
+      }
+
+      redirectToFirebase(event) {
+        event.preventDefault();
+
+        const reader = new FileReader();
+        reader.onload = e => this.previewImage = e.target.result;
+        reader.readAsDataURL(this.selectedImages[0]);
+      }
+
+      showRejectedFileError(event) {
+        console.log('rejected')
+        const toast = this.$.rejectToast;
+        toast.text = 'weee';
+        toast.open();
+      }
+    }
+
+    window.customElements.define(JudgeDaleAdd.is, JudgeDaleAdd);
+  </script>
+</dom-module>

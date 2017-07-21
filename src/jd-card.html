@@ -1,0 +1,50 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel='import' href='../bower_components/paper-card/paper-card.html'>
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="jd-card">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+    <paper-card image="[[image]]" siz>
+        <div class="card-content">
+            Hi Kit, [[question]]
+          <!-- <div class="cafe-header">Cafe Basilico
+            <div class="cafe-location cafe-light">
+              <iron-icon icon="communication:location-on"></iron-icon>
+              <span>250ft</span>
+            </div>
+          </div> -->
+          <!-- <div class="cafe-rating">
+            <iron-icon class="star" icon="star"></iron-icon>
+            <iron-icon class="star" icon="star"></iron-icon>
+            <iron-icon class="star" icon="star"></iron-icon>
+            <iron-icon class="star" icon="star"></iron-icon>
+            <iron-icon class="star" icon="star"></iron-icon>
+          </div>
+          <p>$・Italian, Cafe</p>
+          <p class="cafe-light">Small plates, salads &amp; sandwiches in an intimate setting.</p> -->
+        </div>
+        <div class="card-actions">
+          <!-- <div class="horizontal justified">
+            <paper-icon-button icon="icons:event"></paper-icon-button>
+            <paper-button>5:30PM</paper-button>
+            <paper-button>7:30PM</paper-button>
+            <paper-button>9:00PM</paper-button>
+            <paper-button class="cafe-reserve">Reserve</paper-button>
+          </div> -->
+        </div>
+      </paper-card>
+  </template>
+
+  <script>
+    class JudgeDaleCard extends Polymer.Element {
+      static get is() { return 'jd-card'; }
+    }
+
+    window.customElements.define(JudgeDaleCard.is, JudgeDaleCard);
+  </script>
+</dom-module>
