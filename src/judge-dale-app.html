@@ -21,6 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel='import' href='../bower_components/polymerfire/polymerfire.html'>
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="my-icons.html">
 
 <link rel="lazy-import" href="jd-list.html">
@@ -33,8 +34,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       :host {
         --app-primary-color: #4285f4;
         --app-secondary-color: black;
+        font-family: arial;
 
         display: block;
+      }
+
+      #profileImage {
+        --iron-image-width: 50px;
+        --iron-image-height: 50px;
+        border-radius: 50%;
+        margin-right: 15px;
       }
 
       app-drawer-layout:not([narrow]) [drawer-toggle] {
@@ -43,7 +52,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       app-header {
         color: #fff;
-        background-color: var(--app-primary-color);
+        height: 212px;
+        background-color:var(--paper-deep-orange-900);
+        --app-header-background-front-layer: {
+          background-image: url(/images/judgedale2.png);
+          background-position: center -100px;
+          background-size: 512px;
+          background-repeat: no-repeat;
+          image-rendering: crisp-edges; 
+        };
       }
 
       app-header paper-icon-button {
@@ -66,6 +83,52 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: black;
         font-weight: bold;
       }
+
+      app-toolbar.tall {
+        height: 148px;
+        /* text-align: center; */
+      }
+
+      [main-title] {
+        font-weight: lighter;
+        margin-left: 108px;
+      }
+
+      [condensed-title] {
+        font-weight: lighter;
+        margin-left: 30px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      [condensed-title] i {
+        font-weight: 100;
+        font-style: normal;
+      }
+
+      @media (max-width: 639px) {
+        app-header {
+          --app-header-background-front-layer: {
+            background-image: url(/images/judgedale2.png);
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: 150px;
+          }
+        }
+
+        app-toolbar.tall {
+           text-align: center; 
+        }
+
+        [main-title] {
+          font-size: 30px;
+          margin-left: 0px;
+          margin-top:90px; 
+        }
+        [condensed-title] {
+          font-size: 15px;
+        }
+      }
 </style>
 
     <firebase-app
@@ -75,6 +138,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       storage-bucket="judgedale-294f9.appspot.com"
       messaging-sender-id="81118285806">
     </firebase-app>
+
+    <firebase-auth
+      id="auth"
+      user="{{user}}"
+      signed-in="{{signedIn}}"
+      provider="google"
+      on-error="handleError">
+    </firebase-auth>
+
+    <firebase-document
+      path="users/[[user.uid]]/isAdmin"
+      data="{{isAdmin}}">
+    </firebase-document>
 
     <app-location route="{{route}}"></app-location>
     <app-route
@@ -86,20 +162,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <app-drawer-layout fullbleed>
       <!-- Drawer content -->
       <app-drawer id="drawer" slot="drawer">
-        <app-toolbar>Menu</app-toolbar>
+        <app-toolbar>
+          <span hidden$="[[!signedIn]]"><iron-image id="profileImage" src="[[user.photoURL]]"></iron-image></span>
+          Menu
+        </app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-          <a name="list" href="list">View One</a>
-          <a name="add" href="add">View Two</a>
+          <a name="list" href="list">Judgements</a>
+          <a name="add" href="add">Ask for judgement</a>
+          <paper-button on-tap="signIn" hidden$="[[signedIn]]">Sign In</paper-button>
+          <paper-button on-tap="signOut" hidden$="[[!signedIn]]">Sign out</paper-button>
         </iron-selector>
       </app-drawer>
 
       <!-- Main content -->
       <app-header-layout has-scrolling-region>
 
-        <app-header slot="header" condenses reveals effects="waterfall">
+        <app-header slot="header" condenses reveals effects="waterfall resize-title blend-background parallax-background">
           <app-toolbar>
-            <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
-            <div main-title>Kit Dale</div>
+            <paper-icon-button icon="jd-icons:menu" drawer-toggle></paper-icon-button>
+            <h4 condensed-title>Judge Dale - I am the law!</h4>
+          </app-toolbar>
+          <app-toolbar class="tall">
+            <h1 main-title>Judge Dale</h1>
           </app-toolbar>
         </app-header>
 
@@ -108,7 +192,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             attr-for-selected="name"
             fallback-selection="view404"
             role="main">
-          <jd-list name="list"></jd-list>
+          <jd-list name="list" admin="{{isAdmin}}"></jd-list>
           <jd-add name="add"></jd-add>
           <my-view404 name="view404"></my-view404>
         </iron-pages>
@@ -131,6 +215,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           rootPattern: String,
           routeData: Object,
           subroute: String,
+          isAdmin: {
+            type: Boolean,
+            value: false
+          },
+          user: Object,
+          signedIn: Boolean
         };
       }
 
@@ -173,6 +263,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             null,
             this._showPage404.bind(this),
             true);
+      }
+
+      signIn() {
+        this.$.auth.signInWithPopup();
+      }
+
+      signOut() {
+        this.$.auth.signOut();
       }
 
       _showPage404() {

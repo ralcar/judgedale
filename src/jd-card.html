@@ -1,48 +1,100 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel='import' href='../bower_components/paper-card/paper-card.html'>
+<link rel='import' href='../bower_components/google-youtube/google-youtube.html'>
+<link rel="import" href="jd-card-admin.html">
 <link rel="import" href="shared-styles.html">
+<link rel="import" href="my-icons.html">
+
 
 <dom-module id="jd-card">
   <template>
     <style include="shared-styles">
-      :host {
+       :host {
         display: block;
       }
+
+      paper-card {
+        width: 100%;
+        max-width: 960px;
+        --paper-card-header-image: {
+          background-size: contain;
+          background-position: center center;
+          background-repeat: no-repeat;
+          height: 200px;
+          /* min-height: 100%; */
+        }
+      }
+
+      .emote-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 50px;
+        height: 50px;
+      }
+
+      .emote-container img {
+        border-radius: 50%;
+        max-width: 50px;
+        max-height: 50px;
+      }
     </style>
-    <paper-card image="[[image]]" siz>
-        <div class="card-content">
-            Hi Kit, [[question]]
-          <!-- <div class="cafe-header">Cafe Basilico
-            <div class="cafe-location cafe-light">
-              <iron-icon icon="communication:location-on"></iron-icon>
-              <span>250ft</span>
-            </div>
-          </div> -->
-          <!-- <div class="cafe-rating">
-            <iron-icon class="star" icon="star"></iron-icon>
-            <iron-icon class="star" icon="star"></iron-icon>
-            <iron-icon class="star" icon="star"></iron-icon>
-            <iron-icon class="star" icon="star"></iron-icon>
-            <iron-icon class="star" icon="star"></iron-icon>
+    <paper-card image="[[judgement.imageURL]]" preload-image fade-image>
+      <div class="card-content">
+        <template is="dom-if" if="[[computeIfVideoVisible(judgement.videoId)]]">
+          <google-youtube
+            video-id="[[judgement.videoId]]"
+            height="370px"
+            width="100%"
+            rel="0"
+            start="5"
+            autoplay="0">
+          </google-youtube>
+        </template>
+        <div class="question">
+          Hi Kit, [[judgement.question]]
+        </div>
+        <div class="answer" hidden$="[[!judgement.comment]]">
+          <div class="emote-container">
+            <img src="{{computeEmoteURL(judgement.emote)}}">
           </div>
-          <p>$・Italian, Cafe</p>
-          <p class="cafe-light">Small plates, salads &amp; sandwiches in an intimate setting.</p> -->
+          <span>[[judgement.comment]]</span>
         </div>
-        <div class="card-actions">
-          <!-- <div class="horizontal justified">
-            <paper-icon-button icon="icons:event"></paper-icon-button>
-            <paper-button>5:30PM</paper-button>
-            <paper-button>7:30PM</paper-button>
-            <paper-button>9:00PM</paper-button>
-            <paper-button class="cafe-reserve">Reserve</paper-button>
-          </div> -->
+      </div>
+
+      <template is="dom-if" if="[[admin]]">
+        <div class="card-actions" hidden$="[[previewMode]]">
+          <jd-card-admin judgement="{{judgement}}"></jd-card-admin>
         </div>
-      </paper-card>
+      </template>
+      
+    </paper-card>
   </template>
 
   <script>
     class JudgeDaleCard extends Polymer.Element {
-      static get is() { return 'jd-card'; }
+      static get is() {
+        return 'jd-card';
+      }
+
+      static get properties() {
+        return {
+          judgement: {
+            type: Object,
+            notify: true
+          },
+          previewMode: Boolean,
+          admin: Boolean
+        }
+      }
+
+      computeIfVideoVisible(videoId) {
+        if(videoId && videoId.length > 10) return true;
+      }
+
+      computeEmoteURL(emote) {
+        return emote ? `../images/emotes/${emote}.png` : `../images/emotes/normal.png`;
+      }
     }
 
     window.customElements.define(JudgeDaleCard.is, JudgeDaleCard);

@@ -13,8 +13,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel='import' href='../bower_components/paper-toast/paper-toast.html'>
 <link rel='import' href='../bower_components/paper-radio-group/paper-radio-group.html'>
 <link rel='import' href='../bower_components/paper-button/paper-button.html'>
-<link rel='import' href='../bower_components/iron-image/iron-image.html'>
 <link rel='import' href='../bower_components/paper-input/paper-input.html'>
+<link rel='import' href='../bower_components/paper-button/paper-button.html'>
+<link rel='import' href='../bower_components/iron-image/iron-image.html'>
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel='import' href='../bower_components/cpol-image/cpol-image.html'>
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="jd-card.html">
 
@@ -25,43 +28,87 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: block;
 
         padding: 10px;
-
-        --iron-image-width:150px;
-        --iron-image-height: 150px;
       }
 
-      
-    </style>
+      .preview {
+        padding: 20px;
+      }
+
+      vaadin-upload.orange {
+        --primary-color: var(--paper-deep-orange-900);
+      }
+
+      paper-button.orange {
+        background-color: var(--paper-deep-orange-900);
+        color: #fff;
+      }
+
+      paper-radio-button.orange {
+        --paper-radio-button-checked-color: var(--paper-deep-orange-900);
+        --paper-radio-button-unchecked-color: var(--paper-deep-orange-900);
+      }
+</style>
+
+  <app-location route="{{route}}"></app-location>
 
     <div class="card">
 
-      <paper-radio-group selected="{{judgementType}}">
-        <paper-radio-button name="image">Image</paper-radio-button>
-        <paper-radio-button name="video">Video</paper-radio-button>
+      <paper-radio-group selected="{{judgementType}}" on-selected-changed="resetForm">
+        <paper-radio-button class="orange" name="image">Image</paper-radio-button>
+        <paper-radio-button class="orange" name="video">Video</paper-radio-button>
       </paper-radio-group>
+
+
 
       <div hidden$="{{addingVideo}}">
 
-        <paper-input label="Ask for Kit´s attention" value="{{question}}"></paper-input>
-
-        <vaadin-upload accept=".jpg" files="{{selectedImages}}" max-files="1" on-files-changed="uploadFile" on-file-reject="showRejectedFileError"
-          on-upload-before="redirectToFirebase">
-          <!-- <div class="drop-label">
-            <iron-icon icon="description"></iron-icon>
-            Drop an image of your ugly face here
-          </div> -->
+        <vaadin-upload
+          id="imageUpload"
+          class="orange" 
+          accept=".jpg,.png,.gif,.bmp" 
+          files="{{selectedImages}}" 
+          max-files="1" on-file-reject="showRejectedFileError"
+          on-upload-before="loadPreviewImage">
         </vaadin-upload>
 
-        <paper-button raised on-tap="addImage">Judge me</paper-button>
+         <paper-input
+          id="selectPlayerImage"
+          type="file"
+          on-change="_previewImage"
+          >
+        </paper-input>
+
+        <cpol-image
+          id="coba"
+          output-data="{{imageResizeResult}}"
+          output-type="base64"
+          max-width="960"
+          max-height="200">
+        </cpol-image>
+
+        <iron-image
+            id="playerIcon"
+            src$='[[imageResizeResult]]'>
+        </iron-image>
 
       </div>
-      <div hidden$="{{!addingVideo}}">vid</div>
+
+      <div hidden$="{{!addingVideo}}">
+        <paper-input label="Paste Youtube ID (after ?v=)" value="{{judgement.videoId}}"></paper-input>
+      </div>
+
+      <paper-input label="Question" value="{{judgement.question}}"></paper-input>
+
+      <paper-button class="orange" raised on-tap="askForJudgement">Judge me</paper-button>
 
 
       <paper-toast id="rejectToast"></paper-toast>
     </div>
-    <h1>Preview</h1>
-    <jd-card image="{{previewImage}}" question="{{question}}"></jd-card>
+    <div class="preview">
+      <h1>Preview</h1>
+      <jd-card judgement="{{judgement}}" preview-mode></jd-card>
+    </div>
+
   </template>
 
   <script>
@@ -81,60 +128,153 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             computed: 'computeIfAddingVideo(judgementType)'
           },
           selectedImages: Array,
-          previewImage: String
+          judgement: {
+            type: Object,
+            value: {
+              question: '',
+              imageURL: '',
+              videoId: ''
+            },
+            notify: true
+          },
+          videoId: String,
+          imageResizeResult: {
+            type: Object,
+            observer: 'observeImageResizeResult'
+          }
         }
+      }
+
+      observeImageResizeResult(result) {
+        console.log(result);
       }
 
       computeIfAddingVideo(judgementType) {
         return judgementType === "video";
       }
 
-
-      uploadFile(file) {
-        // console.log(file);
+      resetForm() {
+        this.selectedImages = null;
+        this.judgement = {
+          question: '',
+          imageURL: '',
+          videoId: ''
+        }
       }
 
-      addImage() {
 
-        if (this.selectedImages.length === 0) return;
+      askForJudgement() {
+
+        if (!this.selectedImages && !this.judgement.videoId) {
+          console.log("you need to upload an image or submit a video");
+          return;
+        }
+
+        const questionId = firebase
+          .database()
+          .ref('judgements')
+          .push()
+          .key;
+
+        if (this.judgementType === "image") {
+
+          this.createImageQuestion(questionId)
+            .then(question => this.submitQuestion(question, questionId))
+            .then(this.resetForm())
+            .then(this.redirectToList())
+            .catch(error => console.log(error))
+
+        } else if (this.judgementType === "video") {
+
+          this.createVideoQuestion()
+            .then(question => this.submitQuestion(question, questionId))
+            .then(this.resetForm())
+            .then(this.redirectToList())
+            .catch(error => console.log(error));
+
+        }
+
+      }
+
+      redirectToList() {
+        this.set("route.path", "/list");
+      }
+
+      submitQuestion(question, questionId) {
+        firebase
+          .database()
+          .ref('judgements')
+          .child(questionId)
+          .set(question);
+
+        return Promise.resolve();
+      }
+
+      createImageQuestion(questionId) {
+        let question = {
+          type: 'image',
+          question: this.judgement.question,
+          judged: false,
+          created: Date.now()
+        }
+
+        return this.uploadImage(questionId)
+          .then(uploadedFile => {
+            question.imageURL = uploadedFile.downloadURL;
+            return question;
+          })
+      }
+
+      createVideoQuestion() {
+        let question = {
+          type: 'video',
+          question: this.judgement.question,
+          videoId: this.judgement.videoId,
+          judged: false,
+          created: Date.now()
+        }
+
+        return Promise.resolve(question);
+      }
+
+      uploadImage(questionId) {
 
         const file = this.selectedImages[0];
         const extension = file.name.split('.')[1];
-        console.log(file);
-        return;
-        const uploadId = firebase
-          .database()
-          .ref('images')
-          .push()
-          .key;
 
         const imagesRef = firebase
           .storage()
           .ref('images');
 
-        imagesRef
-          .child(`${uploadId}.${extension}`)
-          .put(file)
-          .then(uploadedFile => {
-
-            firebase
-              .database()
-              .ref('images')
-              .child(uploadId)
-              .set({
-                judged: false,
-                imageURL: uploadedFile.downloadURL
-              });
-          });
-
+        return imagesRef
+          .child(`${questionId}.${extension}`)
+          .put(file);
       }
 
-      redirectToFirebase(event) {
+      loadPreviewImage(event) {
         event.preventDefault();
-
+        console.log(this.selectedImages[0]);
+        // this.$.coba.processImageFile(e.target.result);
         const reader = new FileReader();
-        reader.onload = e => this.previewImage = e.target.result;
+        reader.onload = e => {
+          this.set('judgement.imageURL', e.target.result);
+          
+        }
         reader.readAsDataURL(this.selectedImages[0]);
+      }
+
+      _previewImage(e) {
+        const file = e.target.inputElement.inputElement.files[0];
+        if(file) {
+          // const reader = new FileReader();
+          // reader.onload = e => {
+          //   console.log(e.target.result);
+          //   // this.$.playerImage.src = e.target.result;
+          // }
+          // reader.readAsDataURL(file);
+
+          this.$.coba.processImageFile(file);
+        }
       }
 
       showRejectedFileError(event) {

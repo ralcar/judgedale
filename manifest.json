@@ -1,8 +1,7 @@
 {
-  "name": "Kit Dale Judgement",
-  "short_name": "Judge Dale",
-  "theme_color": "#2196f3",
-  "background_color": "#2196f3",
+  "name": "Judge Dale",
+  "theme_color": "#bf360c",
+  "background_color": "#bf360c",
   "display": "standalone",
   "Scope": "/",
   "start_url": "/",
