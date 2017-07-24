@@ -1,0 +1,63 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
+
+<dom-module id="jd-answer">
+  <template>
+    <style>
+      :host {
+        display: block;
+        background: #eee;
+        padding: 15px;
+        border-bottom-left-radius: 15px;
+        border-bottom-right-radius: 15px;
+      }
+
+      .user-image {
+        --iron-image-width: 50px;
+        --iron-image-height: 50px;
+        border-radius: 50%;
+        margin-right: 12px;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+      }
+
+      .answer {
+        font-family: Georgia, serif;
+        font-size: 16px;
+        line-height: 1.2;
+        color: #666;
+      }
+
+    </style>
+
+    
+    <div class="container">
+      <iron-image class="user-image" src="[[computeEmoteURL(answer.emote)]]"></iron-image>
+      <div class="answer">"[[answer.answer]]"</div>
+    </div>
+    
+
+  </template>
+
+  <script>
+    class JudgeDaleAnswer extends Polymer.Element {
+      static get is() { return 'jd-answer'; }
+      static get properties() {
+        return {
+          answer: String
+        };
+      }
+
+      computeEmoteURL(emote) {
+        return emote ? `../images/emotes/${emote}.png` : `../images/emotes/normal.png`;
+      }
+    }
+
+    window.customElements.define(JudgeDaleAnswer.is, JudgeDaleAnswer);
+  </script>
+</dom-module>

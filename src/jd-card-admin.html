@@ -3,6 +3,7 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-document.html">
 <link rel='import' href='../bower_components/paper-icon-button/paper-icon-button.html'>
+<link rel='import' href='../bower_components/paper-button/paper-button.html'>
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="my-icons.html">
 
@@ -20,6 +21,10 @@
         min-height: 50px;
       }
 
+      .emotes {
+        margin: 15px 0px;
+      }
+
       .emote-container {
         display: flex;
         justify-content: center;
@@ -27,15 +32,40 @@
         width: 50px;
         height: 50px;
       }
+
+      .buttons {
+        position: relative;
+        display: flex;
+        justify-content: center;
+      }
+
+      .toggle-edit {
+        background: var(--paper-deep-orange-900);
+        color: #fff;
+      }
+
+      .toggle-edit iron-icon {
+        margin-right: 12px;
+      }
+
+      paper-icon-button.orange {
+        position: absolute;
+        margin-top:5px;
+        right: 15px;
+        color: #333;
+      }
     </style>
 
-    <div class="horizontal justified">
-      <paper-icon-button icon="jd-icons:delete" on-tap="rejectQuestion"></paper-icon-button>
-      <paper-icon-button icon="jd-icons:create" on-tap="toggleEditMode"></paper-icon-button>
+    <div class="buttons">
+      <paper-button class="toggle-edit" raised on-tap="toggleEditMode">
+        <iron-icon icon="jd-icons:create"></iron-icon>
+        answer
+      </paper-button>
+      <paper-icon-button class="orange" icon="jd-icons:delete" on-tap="rejectQuestion"></paper-icon-button>
     </div>
 
-    <div class="emotes" hidden$="[[!editMode]]">
-      <paper-radio-group selected="{{judgement.emote}}">
+    <div hidden$="[[!editMode]]">
+      <paper-radio-group class="emotes" selected="{{judgement.emote}}">
         <paper-radio-button name="normal">
           <div class="emote-container">
             <img src="../images/emotes/normal.png">
@@ -72,7 +102,7 @@
           </div>
         </paper-radio-button>
       </paper-radio-group>
-      <paper-input label="Pass your judgment" value="{{judgement.comment}}"></paper-input>
+      <paper-input label="Pass your judgment" value="{{judgement.answer}}"></paper-input>
     </div>
 
   </template>
@@ -113,12 +143,22 @@
 
             if(question.type === "image") {
 
-              const imageRef = firebase.storage().refFromURL(question.imageURL);
-              imageRef
-                .delete()
-                .then(() => {
+              const getLargeImageRef = () => firebase.storage().refFromURL(question.largeImageURL);
+              const getSmallImageRef = () => firebase.storage().refFromURL(question.smallImageURL);
+
+              Promise.all([getLargeImageRef(),getSmallImageRef()])
+                .then(images => {
+                  
+                  const largeImageRef = images[0];
+                  const smallImageRef = images[1];
+
+                  return largeImageRef.delete()
+                    .then(() => smallImageRef.delete());
+
+                }).then(() => {
                   questionRef.set(null);
-                })
+                });
+              
             } else if(question.type === "video") {
               questionRef.set(null);
             }

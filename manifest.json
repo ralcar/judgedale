@@ -1,5 +1,6 @@
 {
   "name": "Judge Dale",
+  "short_name": "Judge Dale",
   "theme_color": "#bf360c",
   "background_color": "#bf360c",
   "display": "standalone",

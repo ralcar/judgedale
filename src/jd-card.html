@@ -1,7 +1,10 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel='import' href='../bower_components/paper-card/paper-card.html'>
+<link rel='import' href='../bower_components/plastic-image/plastic-image.html'>
 <link rel='import' href='../bower_components/google-youtube/google-youtube.html'>
 <link rel="import" href="jd-card-admin.html">
+<link rel="import" href="jd-question.html">
+<link rel="import" href="jd-answer.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="my-icons.html">
 
@@ -11,18 +14,14 @@
     <style include="shared-styles">
        :host {
         display: block;
+        width: 100%;
+        height: auto;
       }
 
-      paper-card {
-        width: 100%;
-        max-width: 960px;
-        --paper-card-header-image: {
-          background-size: contain;
-          background-position: center center;
-          background-repeat: no-repeat;
-          height: 200px;
-          /* min-height: 100%; */
-        }
+      .card {
+         border-radius: 15px;
+         padding: 0;
+         margin: 0;
       }
 
       .emote-container {
@@ -38,37 +37,57 @@
         max-width: 50px;
         max-height: 50px;
       }
-    </style>
-    <paper-card image="[[judgement.imageURL]]" preload-image fade-image>
-      <div class="card-content">
-        <template is="dom-if" if="[[computeIfVideoVisible(judgement.videoId)]]">
-          <google-youtube
-            video-id="[[judgement.videoId]]"
-            height="370px"
-            width="100%"
-            rel="0"
-            start="5"
-            autoplay="0">
-          </google-youtube>
-        </template>
-        <div class="question">
-          Hi Kit, [[judgement.question]]
-        </div>
-        <div class="answer" hidden$="[[!judgement.comment]]">
-          <div class="emote-container">
-            <img src="{{computeEmoteURL(judgement.emote)}}">
-          </div>
-          <span>[[judgement.comment]]</span>
-        </div>
-      </div>
+
+      jd-answer {
+        border-top: 1px solid #e8e8e8;
+      }
+
+      plastic-image {
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        filter: grayscale(100%); 
+      }
+
+      jd-card-admin {
+        padding: 15px;
+      }
+</style>
+
+    <!-- <paper-card> -->
+    <div class="card">
+      <plastic-image
+        preload
+        fade
+        sizing="cover"
+        lazy-load
+        srcset="[[judgement.smallImageURL]] 500w, [[judgement.largeImageURL]]"
+        placeholder="[[judgement.placeHolderImage]]"
+        style="height:720px;width:960px">
+      </plastic-image>
+      
+      <template is="dom-if" if="[[computeIfVideoVisible(judgement.videoId)]]">
+        <google-youtube
+          video-id="[[judgement.videoId]]"
+          height="370px"
+          width="100%"
+          rel="0"
+          start="5"
+          autoplay="0">
+        </google-youtube>
+      </template>
+      <jd-question question="[[judgement]]"></jd-question>
+
+      <template is="dom-if" if="[[judgement.answer]]">
+        <jd-answer answer="[[judgement]]"></jd-answer>
+      </template>
 
       <template is="dom-if" if="[[admin]]">
-        <div class="card-actions" hidden$="[[previewMode]]">
+        <div hidden$="[[previewMode]]">
           <jd-card-admin judgement="{{judgement}}"></jd-card-admin>
         </div>
       </template>
-      
-    </paper-card>
+    </div>
+    <!-- </paper-card> -->
   </template>
 
   <script>
@@ -92,9 +111,6 @@
         if(videoId && videoId.length > 10) return true;
       }
 
-      computeEmoteURL(emote) {
-        return emote ? `../images/emotes/${emote}.png` : `../images/emotes/normal.png`;
-      }
     }
 
     window.customElements.define(JudgeDaleCard.is, JudgeDaleCard);

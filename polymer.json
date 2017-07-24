@@ -2,9 +2,9 @@
   "entrypoint": "index.html",
   "shell": "src/judge-dale-app.html",
   "fragments": [
-    "src/jd-list.html",
     "src/jd-add.html",
-    "src/my-view404.html"
+    "src/jd-list.html",
+    "src/jd-view404.html"
   ],
   "sources": [
     "src/**/*",

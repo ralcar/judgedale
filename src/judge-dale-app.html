@@ -26,7 +26,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="lazy-import" href="jd-list.html">
 <link rel="lazy-import" href="jd-add.html">
-<link rel="lazy-import" href="my-view404.html">
+<link rel="lazy-import" href="jd-view404.html">
 
 <dom-module id="judge-dale-app">
   <template>
@@ -55,7 +55,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         height: 212px;
         background-color:var(--paper-deep-orange-900);
         --app-header-background-front-layer: {
-          background-image: url(/images/judgedale2.png);
+          background-image: url(/images/judgedale.jpg);
           background-position: center -100px;
           background-size: 512px;
           background-repeat: no-repeat;
@@ -109,7 +109,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       @media (max-width: 639px) {
         app-header {
           --app-header-background-front-layer: {
-            background-image: url(/images/judgedale2.png);
+            background-image: url(/images/judgedale.jpg);
             background-repeat: no-repeat;
             background-position: center center;
             background-size: 150px;
@@ -148,8 +148,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </firebase-auth>
 
     <firebase-document
-      path="users/[[user.uid]]/isAdmin"
-      data="{{isAdmin}}">
+      path="users/[[user.uid]]"
+      data="{{databaseUser}}">
     </firebase-document>
 
     <app-location route="{{route}}"></app-location>
@@ -192,9 +192,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             attr-for-selected="name"
             fallback-selection="view404"
             role="main">
-          <jd-list name="list" admin="{{isAdmin}}"></jd-list>
-          <jd-add name="add"></jd-add>
-          <my-view404 name="view404"></my-view404>
+          <jd-list name="list" admin="{{databaseUser.isAdmin}}"></jd-list>
+          <jd-add name="add" user="[[user]]"></jd-add>
+          <jd-view404 name="view404"></jd-view404>
         </iron-pages>
       </app-header-layout>
     </app-drawer-layout>
@@ -215,10 +215,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           rootPattern: String,
           routeData: Object,
           subroute: String,
-          isAdmin: {
-            type: Boolean,
-            value: false
-          },
+          databaseUser: Object,
           user: Object,
           signedIn: Boolean
         };
