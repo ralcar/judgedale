@@ -15,5 +15,8 @@
   },
   "dependencies": {
     "browsersync": "0.0.1-security"
-  }
+  },
+  "builds": [{
+    "preset": "es6-bundled"
+  }]  
 }

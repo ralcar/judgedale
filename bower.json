@@ -29,7 +29,8 @@
     "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.1",
     "paper-toggle-button": "PolymerElements/paper-toggle-button#^2.0.0",
     "cpol-image": "3mp3ri0r/cpol-image#^1.0.0",
-    "plastic-image": "mlisook/plastic-image#^1.0.6"
+    "plastic-image": "mlisook/plastic-image#^1.0.6",
+    "grain-masonry": "daKmoR/grain-masonry#^0.8.2"
   },
   "resolutions": {
     "polymer": "^2.0.0-rc.3"

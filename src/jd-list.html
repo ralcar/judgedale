@@ -18,6 +18,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="my-icons.html">
 <link rel="import" href="jd-card.html">
 
+<link rel='import' href='../bower_components/grain-masonry/grain-masonry.html'>
+
+
 
 <dom-module id="jd-list">
   <template>
@@ -49,6 +52,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         flex-direction: column;
         align-items: center;
       }
+
+      article {
+        width: 400px;
+        margin: 15px;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;        
+      }
     </style>
 
     <firebase-query
@@ -59,9 +71,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     
     <div class="judgements-container">
-      <template is="dom-repeat" items="{{judgements}}" as="judgement" sort="_reverseOrder">
-        <jd-card judgement="{{judgement}}" admin="[[admin]]"></jd-card>
-      </template>
+      <grain-masonry id="cardGrid" transition-duration="250">
+         <template is="dom-repeat" items="{{judgements}}" as="judgement">
+            <article style$="height: [[judgement.height]];">
+              <jd-card judgement="{{judgement}}" admin="[[admin]]" on-edit-mode="updateLayout"></jd-card>
+            </article>
+          </template> 
+      </grain-masonry>
+      
     </div>
 
     <a href="/add">
@@ -93,6 +110,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return 0;
         }
         return a.$key > b.$key ? -1 : 1;
+      }
+
+      updateLayout() {
+        console.log("updating");
+        this.$.cardGrid.layout();
       }
     }
 

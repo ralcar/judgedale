@@ -127,7 +127,9 @@
       }
 
       toggleEditMode() {
+        console.log("toggling");
         this.editMode = !this.editMode;
+        this.dispatchEvent(new CustomEvent('edit-mode', {bubbles: true, composed: true, detail: {editMode: this.editMode}}));
       }
 
       rejectQuestion() {
@@ -143,22 +145,11 @@
 
             if(question.type === "image") {
 
-              const getLargeImageRef = () => firebase.storage().refFromURL(question.largeImageURL);
-              const getSmallImageRef = () => firebase.storage().refFromURL(question.smallImageURL);
+              const imageRef = firebase.storage().refFromURL(question.imageURL);
 
-              Promise.all([getLargeImageRef(),getSmallImageRef()])
-                .then(images => {
-                  
-                  const largeImageRef = images[0];
-                  const smallImageRef = images[1];
+              imageRef.delete();
+              questionRef.set(null);
 
-                  return largeImageRef.delete()
-                    .then(() => smallImageRef.delete());
-
-                }).then(() => {
-                  questionRef.set(null);
-                });
-              
             } else if(question.type === "video") {
               questionRef.set(null);
             }

@@ -16,7 +16,6 @@
         --iron-image-width: 50px;
         --iron-image-height: 50px;
         border-radius: 50%;
-        margin-right: 12px;
       }
 
       .container {
@@ -24,6 +23,11 @@
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
+      }
+
+      .answer-image {
+        width: 50px;
+        margin-right: 12px;
       }
 
       .answer {
@@ -37,7 +41,9 @@
 
     
     <div class="container">
-      <iron-image class="user-image" src="[[computeEmoteURL(answer.emote)]]"></iron-image>
+      <div class="answer-image">
+        <iron-image class="user-image" src="[[computeEmoteURL(answer.emote)]]"></iron-image>
+      </div>
       <div class="answer">"[[answer.answer]]"</div>
     </div>
     

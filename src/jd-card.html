@@ -45,7 +45,10 @@
       plastic-image {
         border-top-left-radius: 15px;
         border-top-right-radius: 15px;
-        filter: grayscale(100%); 
+      }
+
+      plastic-image.grey {
+        filter: grayscale(100%);  
       }
 
       jd-card-admin {
@@ -53,16 +56,17 @@
       }
 </style>
 
-    <!-- <paper-card> -->
-    <div class="card">
+    <div class="card" >
       <plastic-image
+        id="cardImage"
+        class$="[[hasGreyScale(imageLoaded)]]"
         preload
         fade
         sizing="cover"
         lazy-load
-        srcset="[[judgement.smallImageURL]] 500w, [[judgement.largeImageURL]]"
+        srcset="[[judgement.imageURL]]"
         placeholder="[[judgement.placeHolderImage]]"
-        style="height:720px;width:960px">
+        style$="[[computeImageHeight(judgement.imageHeight)]]">
       </plastic-image>
       
       <template is="dom-if" if="[[computeIfVideoVisible(judgement.videoId)]]">
@@ -87,7 +91,6 @@
         </div>
       </template>
     </div>
-    <!-- </paper-card> -->
   </template>
 
   <script>
@@ -102,13 +105,36 @@
             type: Object,
             notify: true
           },
+          imageLoaded: {
+            type: Boolean,
+            value: false
+          },
           previewMode: Boolean,
-          admin: Boolean
+          admin: Boolean,
+          editMode: Boolean
+        }
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        const img = this.$.cardImage.shadowRoot.getElementById('img');
+
+        img.onload = e => {
+          this.imageLoaded = true;
         }
       }
 
       computeIfVideoVisible(videoId) {
         if(videoId && videoId.length > 10) return true;
+      }
+
+      computeImageHeight(height) {
+        const style = `width: 100%; height:${height}px`;
+        return style;
+      }
+
+      hasGreyScale(imageLoaded) {
+        return !imageLoaded ? 'grey' : '';
       }
 
     }
