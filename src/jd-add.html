@@ -37,13 +37,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         padding: 20px;
       }
 
-      vaadin-upload.orange {
-        --primary-color: var(--paper-deep-orange-900);
+      .preview-container {
+        width: 400px;
+        text-align: center;
+        margin-top: 25px;
+      }
+
+      paper-input iron-icon {
+        margin-right: 12px;
       }
 
       paper-button.orange {
         background-color: var(--paper-deep-orange-900);
         color: #fff;
+        margin-top: 20px;
       }
 
       paper-radio-button.orange {
@@ -125,7 +132,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </app-toolbar>
       </app-header>
 
+      
+
       <div class="container">
+
+        
+        <div class="preview-container">
+          <h1>Preview Card</h1>
+          <jd-card judgement="{{judgement}}" preview-mode></jd-card>
+          <canvas id="canvas" width="100" height="75" hidden></canvas>
+        </div>
+
         <div class="card">
 
           <paper-radio-group selected="{{judgementType}}" on-selected-changed="resetForm">
@@ -161,20 +178,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-input label="Youtube link" value="{{judgement.videoURL}}"></paper-input>
           </div>
 
-          <paper-input label="Question" value="{{judgement.question}}"></paper-input>
+          <paper-input label="Question" value="{{judgement.question}}">
+            <iron-icon icon="jd-icons:question-answer" slot="prefix"></iron-icon>
+          </paper-input>
 
-          <paper-input label="My name is" value="{{judgement.username}}"></paper-input>
+          <paper-input label="My name is" value="{{judgement.username}}">
+            <iron-icon icon="jd-icons:person-outline" slot="prefix"></iron-icon>
+          </paper-input>
 
-          <paper-button class="orange" raised on-tap="askForJudgement">Judge me</paper-button>
+          <paper-button class="orange" raised on-tap="askForJudgement">Submit</paper-button>
 
 
           <paper-toast id="toast" horizontal-align="right"></paper-toast>
         </div>
 
-        <h1>Preview</h1>
         
-        <canvas id="canvas" width="100" height="75" hidden></canvas>
-        <jd-card judgement="{{judgement}}" preview-mode></jd-card>
       </div>
     </app-header-layout>
 
@@ -202,7 +220,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             value: {
               question: '',
               imageURL: '',
-              videoURL: ''
+              videoURL: '',
+              created: new Date(),
             },
             notify: true
           },
@@ -217,6 +236,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           questionId: String,
           user: Object
         }
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
       }
 
       openImageSelect() {
@@ -329,6 +352,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               userImage: this.user ? this.user.photoURL : null,
               imageHeight: this.imageSize.height,
               placeHolderImage: pixelatedImage,
+              username: this.judgement.username,
+              userImage: this.user ? this.user.photoURL : null,
               created: Date.now(),
               judged: false
             }
@@ -345,7 +370,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: 'video',
           question: this.judgement.question,
           videoURL: this.judgement.videoURL,
+          username: this.judgement.username,
           userImage: this.user ? this.user.photoURL : null,
+          created: Date.now(),
           judged: false,
         }
 

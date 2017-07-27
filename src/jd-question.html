@@ -7,6 +7,7 @@
       :host {
         display: block;
         padding: 15px;
+        position:relative;
       }
 
       .user-image {
@@ -27,15 +28,34 @@
         margin-right: 12px;
       }
 
-      .question {
-        font-family: Arial, Helvetica, sans-serif
+      .question-container {
+        font-family: Arial, Helvetica, sans-serif;
+        height: 50px;
+      }
+
+      .username {
+        color: #000;
+        font-size: 12px;
+      }
+
+      .date {
+        position:absolute;
+        top: 0px;
+        right: 5px;
+        color: #000;
+        font-size: 10px;
       }
     </style>
+
+    <div class="date">[[getShortDate(question.created)]]</div>
     <div class="container">
       <div class="question-image">
         <iron-image class="user-image" src="[[computeUserImage(question.userImage)]]"></iron-image>
       </div>
-      <div class="question">[[question.question]]</div>
+      <div class="question-container">
+        <div class="username">[[question.username]]</div>
+        <div class="question">[[question.question]]</div>
+      </div>
     </div>
 
   </template>
@@ -51,6 +71,10 @@
 
       computeUserImage(userImageURL) {
         return userImageURL || '../images/anonymous/business.jpg';
+      }
+
+      getShortDate(date) {
+        return date ? new Date(date).toLocaleDateString() : '';
       }
     }
 
