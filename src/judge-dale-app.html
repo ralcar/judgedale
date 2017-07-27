@@ -22,7 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel='import' href='../bower_components/polymerfire/polymerfire.html'>
 <link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
-<link rel="import" href="my-icons.html">
+<link rel="import" href="jd-icons.html">
 
 <link rel="lazy-import" href="jd-list.html">
 <link rel="lazy-import" href="jd-add.html">
@@ -129,6 +129,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           font-size: 15px;
         }
       }
+
+      .container {
+        position: relative;
+      }
 </style>
 
     <firebase-app
@@ -161,7 +165,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <app-drawer-layout fullbleed>
       <!-- Drawer content -->
-      <app-drawer id="drawer" slot="drawer">
+      <app-drawer id="drawer" swipe-open slot="drawer">
         <app-toolbar>
           <span hidden$="[[!signedIn]]"><iron-image id="profileImage" src="[[user.photoURL]]"></iron-image></span>
         </app-toolbar>
@@ -173,29 +177,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </iron-selector>
       </app-drawer>
 
-      <!-- Main content -->
-      <app-header-layout has-scrolling-region>
-
-        <app-header slot="header" condenses reveals effects="waterfall resize-title blend-background parallax-background">
-          <app-toolbar>
-            <paper-icon-button icon="jd-icons:menu" drawer-toggle></paper-icon-button>
-            <h4 condensed-title>Judge Dale - I am the law!</h4>
-          </app-toolbar>
-          <app-toolbar class="tall">
-            <h1 main-title>Judge Dale</h1>
-          </app-toolbar>
-        </app-header>
-
-        <iron-pages
-            selected="[[page]]"
-            attr-for-selected="name"
-            fallback-selection="view404"
-            role="main">
-          <jd-list name="list" admin="{{databaseUser.isAdmin}}"></jd-list>
-          <jd-add name="add" user="[[user]]"></jd-add>
-          <jd-view404 name="view404"></jd-view404>
-        </iron-pages>
-      </app-header-layout>
+      <iron-pages
+          selected="[[page]]"
+          attr-for-selected="name"
+          fallback-selection="view404"
+          role="main">
+        <jd-list name="list" admin="{{databaseUser.isAdmin}}">
+          <paper-icon-button icon="jd-icons:menu" drawer-toggle slot="drawer-toggle"></paper-icon-button>
+        </jd-list>
+        <jd-add name="add" user="[[user]]">
+          <paper-icon-button icon="jd-icons:menu" drawer-toggle slot="drawer-toggle"></paper-icon-button>
+        </jd-add>
+        <jd-view404 name="view404"></jd-view404>
+      </iron-pages>
+      
     </app-drawer-layout>
   </template>
 
@@ -262,7 +257,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       signIn() {
-        this.$.auth.signInWithRedirect();
+        console.log("popup??");
+        this.$.auth.signInWithPopup();
       }
 
       signOut() {

@@ -5,7 +5,7 @@
   "background_color": "#bf360c",
   "display": "standalone",
   "Scope": "/",
-  "start_url": "/",
+  "start_url": "/list",
   "icons": [
     {
       "src": "images/icons/icon-72x72.png",

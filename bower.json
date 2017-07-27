@@ -30,7 +30,9 @@
     "paper-toggle-button": "PolymerElements/paper-toggle-button#^2.0.0",
     "cpol-image": "3mp3ri0r/cpol-image#^1.0.0",
     "plastic-image": "mlisook/plastic-image#^1.0.6",
-    "grain-masonry": "daKmoR/grain-masonry#^0.8.2"
+    "grain-masonry": "daKmoR/grain-masonry#^0.8.2",
+    "grain-responsive-behavior": "daKmoR/grain-responsive-behavior#^0.8.1",
+    "firebase-storage-upload": "olivierlangelaar/firebase-storage-upload#^0.3.1"
   },
   "resolutions": {
     "polymer": "^2.0.0-rc.3"

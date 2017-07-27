@@ -16,8 +16,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel='import' href='../bower_components/paper-input/paper-input.html'>
 <link rel='import' href='../bower_components/paper-button/paper-button.html'>
 <link rel='import' href='../bower_components/iron-image/iron-image.html'>
-<link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel='import' href='../bower_components/cpol-image/cpol-image.html'>
+<link rel='import' href='../bower_components/firebase-storage-upload/firebase-storage-upload.html'>
+<link rel='import' href='../bower_components/paper-progress/paper-progress.html'>
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="jd-card.html">
 
@@ -26,11 +27,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <style include="shared-styles">
        :host {
         display: block;
-
-        padding: 10px;
       }
 
-      .preview {
+      .container {
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -71,55 +70,113 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         -ms-interpolation-mode: nearest-neighbor;
       }
 
+      app-header {
+        color: #fff;
+        background-color:var(--paper-deep-orange-900);
+      }
+
+      app-header paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+
+      a {
+        text-decoration: none;
+        color: #fff;
+        
+      }
+
+      app-toolbar.tall {
+        height: 148px;
+        /* text-align: center; */
+      }
+
+      [condensed-title] {
+        font-weight: lighter;
+        margin-left: 30px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      [condensed-title] i {
+        font-weight: 100;
+        font-style: normal;
+      }
+
+      @media (max-width: 639px) {
+        
+        app-toolbar.tall {
+           text-align: center; 
+        }
+
+        [condensed-title] {
+          font-size: 15px;
+        }
+      }
+
     </style>
 
-    <app-location route="{{route}}"></app-location>
-    <div class="preview">
-      <div class="card">
+    <app-header-layout has-scrolling-region fullbleed>
 
-        <paper-radio-group selected="{{judgementType}}" on-selected-changed="resetForm">
-          <paper-radio-button class="orange" name="image">Image</paper-radio-button>
-          <paper-radio-button class="orange" name="video">Video</paper-radio-button>
-        </paper-radio-group>
+      <app-header slot="header" condenses reveals effects="waterfall">
+        <app-toolbar>
+          <slot name="drawer-toggle"></slot>
+          <h4 condensed-title>Judge Dale - I am the law!</h4>
+          <a href="/list"><paper-icon-button icon="jd-icons:arrow-back"></paper-icon-button></a>
+        </app-toolbar>
+      </app-header>
+
+      <div class="container">
+        <div class="card">
+
+          <paper-radio-group selected="{{judgementType}}" on-selected-changed="resetForm">
+            <paper-radio-button class="orange" name="image">Image</paper-radio-button>
+            <paper-radio-button class="orange" name="video">Video</paper-radio-button>
+          </paper-radio-group>
 
 
 
-        <div hidden$="{{addingVideo}}">
+          <div hidden$="{{addingVideo}}">
 
-          <vaadin-upload id="imageUpload" class="orange" accept=".jpg,.png,.gif,.bmp" files="{{selectedImages}}" max-files="1" on-file-reject="showRejectedFileError"
-            on-upload-before="loadPreviewImage">
-          </vaadin-upload>
+            <paper-button class="orange" on-tap="openImageSelect" raised>Open file</paper-button>
+            <input
+              id="imageSelect"
+              type="file"
+              accept=".jpg,.png,.gif,.svg"
+              on-change="loadPreviewImage"
+              hidden>
 
-          <cpol-image
-            id="imageResizer"
-            output-data="{{imageResizeResult}}"
-            output-type="base64"
-            max-width="400"
-            image-quality="0.8"
-            on-this-error-changed="handleError">
-          </cpol-image>
+          
+            <cpol-image
+              id="imageResizer"
+              output-data="{{imageResizeResult}}"
+              output-type="base64"
+              max-width="400"
+              image-quality="0.8"
+              on-this-error-changed="handleError">
+            </cpol-image>
 
+          </div>
+
+          <div hidden$="{{!addingVideo}}">
+            <paper-input label="Youtube link" value="{{judgement.videoURL}}"></paper-input>
+          </div>
+
+          <paper-input label="Question" value="{{judgement.question}}"></paper-input>
+
+          <paper-input label="My name is" value="{{judgement.username}}"></paper-input>
+
+          <paper-button class="orange" raised on-tap="askForJudgement">Judge me</paper-button>
+
+
+          <paper-toast id="toast" horizontal-align="right"></paper-toast>
         </div>
 
-        <div hidden$="{{!addingVideo}}">
-          <paper-input label="Youtube link" value="{{judgement.videoURL}}"></paper-input>
-        </div>
-
-        <paper-input label="Question" value="{{judgement.question}}"></paper-input>
-
-        <paper-input label="My name is" value="{{judgement.username}}"></paper-input>
-
-        <paper-button class="orange" raised on-tap="askForJudgement">Judge me</paper-button>
-
-
-        <paper-toast id="toast" horizontal-align="right"></paper-toast>
+        <h1>Preview</h1>
+        
+        <canvas id="canvas" width="100" height="75" hidden></canvas>
+        <jd-card judgement="{{judgement}}" preview-mode></jd-card>
       </div>
-
-      <h1>Preview</h1>
-      
-      <canvas id="canvas" width="500" height="400" hidden></canvas>
-      <jd-card judgement="{{judgement}}" preview-mode></jd-card>
-    </div>
+    </app-header-layout>
 
   </template>
 
@@ -157,10 +214,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           image: Object,
           imageSize: Object,
           previewImage: String,
-          placeHolderImage: String,
           questionId: String,
           user: Object
         }
+      }
+
+      openImageSelect() {
+        this.$.imageSelect.click();
       }
 
       handleImageResize(output) {
@@ -192,12 +252,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       resetForm() {
-        this.selectedImages = null;
+        this.set('selectedImages', null);
+        this.set('image', null);
+        this.set('previewImage', null);
+        this.set('judgement.placeHolderImage',null);
+        
         this.judgement = {
-          question: '',
-          imageURL: '',
-          videoURL: ''
-        }
+              question: '',
+              imageURL: '',
+              videoURL: ''
+            };
       }
       
       askForJudgement() {
@@ -219,7 +283,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.createVideoQuestion()
             .then(question => this.submitQuestion(question))
-            .then(this.resetForm())
             .then(this.redirectToList())
             .catch(error => console.log(error));
 
@@ -230,7 +293,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       continueSubmittingImageUpload() {
         this.createImageQuestion()
           .then(question => this.submitQuestion(question))
-          .then(this.resetForm())
           .then(this.redirectToList())
           .catch(error => console.log(error));
       }
@@ -241,15 +303,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       redirectToList() {
-        this.set("route.path", "/list");
+        window.history.pushState({}, null, '/list');
+        window.dispatchEvent(new CustomEvent('location-changed'));
       }
 
       submitQuestion(question) {
         return firebase
-          .database()
+          .database() 
           .ref('judgements')
           .child(this.questionId)
-          .set(question);
+          .set(question)
+          .then(this.resetForm());
       }
 
       createImageQuestion() {
@@ -265,8 +329,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               userImage: this.user ? this.user.photoURL : null,
               imageHeight: this.imageSize.height,
               placeHolderImage: pixelatedImage,
+              created: Date.now(),
               judged: false
             }
+
+            console.log(question);
 
             const updatedQuestion = Object.assign(uploadedFileURLs, question);
             return updatedQuestion;
@@ -304,8 +371,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       loadPreviewImage(event) {
-        event.preventDefault();
-        this.judgement.imageURL = null;
+        this.set('previewImage', null);
+        this.$.imageResizer.outputType = "base64";
+        this.selectedImages = event.target.files;
         this.$.imageResizer.processImageFile(this.selectedImages);
       }
 

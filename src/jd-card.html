@@ -6,7 +6,7 @@
 <link rel="import" href="jd-question.html">
 <link rel="import" href="jd-answer.html">
 <link rel="import" href="shared-styles.html">
-<link rel="import" href="my-icons.html">
+<link rel="import" href="jd-icons.html">
 
 
 <dom-module id="jd-card">
@@ -69,10 +69,9 @@
         style$="[[computeImageHeight(judgement.imageHeight)]]">
       </plastic-image>
       
-      <template is="dom-if" if="[[computeIfVideoVisible(judgement.videoId)]]">
+      <template is="dom-if" if="[[computeIfVideoVisible(judgement.videoURL)]]">
         <google-youtube
-          video-id="[[judgement.videoId]]"
-          height="370px"
+          video-id="[[extractVideoId(judgement.videoURL)]]"
           width="100%"
           rel="0"
           start="5"
@@ -124,8 +123,13 @@
         }
       }
 
-      computeIfVideoVisible(videoId) {
-        if(videoId && videoId.length > 10) return true;
+      extractVideoId(url) {
+        const videoId = url.split('?v=')[1];
+        return videoId;
+      }
+
+      computeIfVideoVisible(videoURL) {
+        if(videoURL && videoURL.length > 10) return true;
       }
 
       computeImageHeight(height) {
@@ -134,7 +138,7 @@
       }
 
       hasGreyScale(imageLoaded) {
-        return !imageLoaded ? 'grey' : '';
+        return !imageLoaded && !this.previewMode ? 'grey' : '';
       }
 
     }

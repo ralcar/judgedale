@@ -12,11 +12,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel='import' href='../bower_components/paper-fab/paper-fab.html'>
 <link rel='import' href='../bower_components/iron-icons/iron-icons.html'>
 <link rel='import' href='../bower_components/paper-button/paper-button.html'>
-<link rel='import' href='../bower_components/google-youtube/google-youtube.html'>
 <link rel='import' href='../bower_components/polymerfire/polymerfire.html'>
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="shared-styles.html">
-<link rel="import" href="my-icons.html">
-<link rel="import" href="jd-card.html">
+<link rel="import" href="jd-icons.html">
+ <link rel="import" href="jd-card.html"> 
 
 <link rel='import' href='../bower_components/grain-masonry/grain-masonry.html'>
 
@@ -27,63 +29,144 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <style include="shared-styles">
        :host {
         display: block;
-
-        padding: 10px;
       }
+
+      /* App Layout Start */
+       app-header {
+        color: #fff;
+        height: 212px;
+        background-color:var(--paper-deep-orange-900);
+        --app-header-background-front-layer: {
+          background-image: url(/images/judgedale.jpg);
+          background-position: right -100px;
+          background-size: 512px;
+          background-repeat: no-repeat;
+          image-rendering: crisp-edges; 
+        };
+      }
+
+      app-header paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+
+      app-toolbar.tall {
+        height: 148px;
+        display: flex;
+        flex-direction:row;
+        align-items: flex-start;
+      }
+
+      [main-title] {
+        font-weight: lighter;
+        font-size: 75px;
+        display: flex;
+        justify-content: center;
+        color: #fff;
+        white-space: nowrap;
+        
+      }
+
+      [condensed-title] {
+        font-weight: lighter;
+        margin-left: 30px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      [condensed-title] i {
+        font-weight: 100;
+        font-style: normal;
+      }
+
+      @media (max-width: 639px) {
+        app-header {
+          --app-header-background-front-layer: {
+            background-image: url(/images/judgedale.jpg);
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: 150px;
+          }
+        }
+
+        app-toolbar.tall {
+           text-align: center; 
+        }
+
+        [main-title] {
+          font-size: 30px;
+          margin-left: 0px;
+          margin-top:90px; 
+        }
+        [condensed-title] {
+          font-size: 15px;
+        }
+      }
+
+      /* App Layout End */
 
       paper-fab {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
+        bottom: 24px;
+        right: 24px;
+        --paper-fab-background: #000;
+        --paper-fab-keyboard-focus-background: #000;
       }
 
       paper-tabs {
         background-color: blue;
       }
 
-      jd-card {
-        margin-bottom: 15px;
+       jd-card {
         width: 100%;
-        max-width: 960px;
-      }
-
-      .judgements-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      article {
-        width: 400px;
+        max-width: 375px;
         margin: 15px;
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;        
+      } 
+
+      grain-masonry {
+        height: 5000px;
       }
+
     </style>
 
     <firebase-query
       path="judgements"
-      data="{{judgements}}"
-      order-by-value="created">
+      data="{{judgements}}">
     </firebase-query>
-
     
-    <div class="judgements-container">
-      <grain-masonry id="cardGrid" transition-duration="250">
-         <template is="dom-repeat" items="{{judgements}}" as="judgement">
-            <article style$="height: [[judgement.height]];">
-              <jd-card judgement="{{judgement}}" admin="[[admin]]" on-edit-mode="updateLayout"></jd-card>
-            </article>
-          </template> 
+    <app-header-layout has-scrolling-region fullbleed>
+
+      <app-header slot="header" condenses reveals effects="waterfall resize-title blend-background parallax-background">
+        <app-toolbar>
+          <slot name="drawer-toggle"></slot>
+          <h4 condensed-title>Judge Dale - I am the law!</h4>
+        </app-toolbar>
+        <app-toolbar class="tall">
+          <h1 main-title>Judge Dale</h1>
+        </app-toolbar>
+      </app-header>
+
+      
+      <grain-masonry id="cardGrid" transition-duration="500" item-selector="jd-card">
+          <template is="dom-repeat" items="{{judgements}}" as="judgement">  
+
+            <jd-card
+              judgement="{{judgement}}"
+              admin="[[admin]]"
+              on-edit-mode="updateGridLayout"
+              on-card-removed="updateGridLayout"
+              style$="height: [[judgement.height]];">
+            </jd-card> 
+
+          </template>       
       </grain-masonry>
       
-    </div>
+    </app-header-layout>
+      
+    
 
-    <a href="/add">
+     <a href="/add">
       <paper-fab icon="jd-icons:create" title="Judge me!"></paper-fab>
-    </a>
+    </a> 
   </template>
 
   <script>
@@ -94,15 +177,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       static get properties() {
         return {
-          selected: {
-            type: Number,
-            value: 0
-          },
           judgements: {
-            type: Array
+            type: Array,
+            value: []
           },
           admin: Boolean
         }
+      }
+
+      snapshotToArray(snapshot) {
+        let returnArr = [];
+        snapshot.forEach(childSnapshot => {
+          let item = childSnapshot.val();
+          item.key = childSnapshot.key;
+          returnArr.push(item);
+        });
+        return returnArr;
+      };
+
+      
+      createCard(judgement) {
+        const card = document.createElement("jd-card");
+        card.judgement = judgement;
+        card.admin = this.admin;
+        card.id = judgement.$key;
+        card.style = `height: ${judgement.imageHeight}`;
+
+        return card;
       }
 
       _reverseOrder(a,b) {
@@ -112,10 +213,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return a.$key > b.$key ? -1 : 1;
       }
 
-      updateLayout() {
-        console.log("updating");
+      updateGridLayout() {
+        console.log("updating layout");
         this.$.cardGrid.layout();
       }
+
     }
 
     window.customElements.define(JudgeDaleList.is, JudgeDaleList);
