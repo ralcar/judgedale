@@ -1,15 +1,4 @@
-<!--
-@license
-Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel='import' href='../bower_components/vaadin-upload/vaadin-upload.html'>
 <link rel='import' href='../bower_components/paper-toast/paper-toast.html'>
 <link rel='import' href='../bower_components/paper-radio-group/paper-radio-group.html'>
 <link rel='import' href='../bower_components/paper-button/paper-button.html'>
@@ -17,8 +6,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel='import' href='../bower_components/paper-button/paper-button.html'>
 <link rel='import' href='../bower_components/iron-image/iron-image.html'>
 <link rel='import' href='../bower_components/cpol-image/cpol-image.html'>
-<link rel='import' href='../bower_components/firebase-storage-upload/firebase-storage-upload.html'>
-<link rel='import' href='../bower_components/paper-progress/paper-progress.html'>
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="jd-card.html">
 
@@ -94,7 +81,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       app-toolbar.tall {
         height: 148px;
-        /* text-align: center; */
       }
 
       [condensed-title] {
@@ -139,13 +125,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         
         <div class="preview-container">
           <h1>Preview Card</h1>
-          <jd-card judgement="{{judgement}}" preview-mode></jd-card>
+          <jd-card question="{{question}}" preview-mode></jd-card>
           <canvas id="canvas" width="100" height="75" hidden></canvas>
         </div>
 
         <div class="card">
 
-          <paper-radio-group selected="{{judgementType}}" on-selected-changed="resetForm">
+          <paper-radio-group selected="{{questionType}}" on-selected-changed="resetForm">
             <paper-radio-button class="orange" name="image">Image</paper-radio-button>
             <paper-radio-button class="orange" name="video">Video</paper-radio-button>
           </paper-radio-group>
@@ -175,18 +161,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
 
           <div hidden$="{{!addingVideo}}">
-            <paper-input label="Youtube link" value="{{judgement.videoURL}}"></paper-input>
+            <paper-input label="Youtube link" value="{{question.videoURL}}"></paper-input>
           </div>
 
-          <paper-input label="Question" value="{{judgement.question}}">
+          <paper-input label="Question" value="{{question.text}}">
             <iron-icon icon="jd-icons:question-answer" slot="prefix"></iron-icon>
           </paper-input>
 
-          <paper-input label="My name is" value="{{judgement.username}}">
+          <paper-input label="My name is" value="{{question.username}}">
             <iron-icon icon="jd-icons:person-outline" slot="prefix"></iron-icon>
           </paper-input>
 
-          <paper-button class="orange" raised on-tap="askForJudgement">Submit</paper-button>
+          <paper-button class="orange" raised on-tap="createQuestion">Submit</paper-button>
 
 
           <paper-toast id="toast" horizontal-align="right"></paper-toast>
@@ -206,19 +192,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       static get properties() {
         return {
-          judgementType: {
+          questionType: {
             type: String,
             value: "image"
           },
           addingVideo: {
             type: Boolean,
-            computed: 'computeIfAddingVideo(judgementType)'
+            computed: 'computeIfAddingVideo(questionType)'
           },
           selectedImages: Array,
-          judgement: {
+          question: {
             type: Object,
             value: {
-              question: '',
+              text: '',
               imageURL: '',
               videoURL: '',
               created: new Date(),
@@ -270,39 +256,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       }
 
-      computeIfAddingVideo(judgementType) {
-        return judgementType === "video";
+      computeIfAddingVideo(questionType) {
+        return questionType === "video";
       }
 
       resetForm() {
         this.set('selectedImages', null);
         this.set('image', null);
         this.set('previewImage', null);
-        this.set('judgement.placeHolderImage',null);
+        this.set('question.placeHolderImage',null);
         
-        this.judgement = {
-              question: '',
+        this.question = {
+              text: '',
               imageURL: '',
               videoURL: ''
             };
       }
       
-      askForJudgement() {
-
-        if (!this.selectedImages && !this.judgement.videoURL) {
+      createQuestion() {
+        
+        if (!this.selectedImages && !this.question.videoURL) {
           console.log("you need to upload an image or submit a video");
           return;
         }
 
         this.questionId = firebase
           .database()
-          .ref('judgements')
+          .ref('questions')
           .push()
           .key;
 
-        if (this.judgementType === "image") {
+        if (this.questionType === "image") {
           this.resizeImages();
-        } else if (this.judgementType === "video") {
+        } else if (this.questionType === "video") {
 
           this.createVideoQuestion()
             .then(question => this.submitQuestion(question))
@@ -333,14 +319,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       submitQuestion(question) {
         return firebase
           .database() 
-          .ref('judgements')
+          .ref('questions')
           .child(this.questionId)
           .set(question)
           .then(this.resetForm());
       }
 
       createImageQuestion() {
-
+        
         return Promise.all([this.createPixelatedImage(), this.uploadImages()])
           .then(results => {
             const pixelatedImage = results[0];
@@ -348,12 +334,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             let question = {
               type: 'image',
-              question: this.judgement.question,
+              question: this.question.text,
               userImage: this.user ? this.user.photoURL : null,
               imageHeight: this.imageSize.height,
               placeHolderImage: pixelatedImage,
-              username: this.judgement.username,
-              userImage: this.user ? this.user.photoURL : null,
+              username: this.question.username,
               created: Date.now(),
               judged: false
             }
@@ -368,9 +353,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       createVideoQuestion() {
         let question = {
           type: 'video',
-          question: this.judgement.question,
-          videoURL: this.judgement.videoURL,
-          username: this.judgement.username,
+          question: this.question.text,
+          videoURL: this.question.videoURL,
+          username: this.question.username,
           userImage: this.user ? this.user.photoURL : null,
           created: Date.now(),
           judged: false,
@@ -465,12 +450,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       updateImage(img) {
-        this.set('judgement.imageURL', img);
+        this.set('question.imageURL', img);
       }
 
       setPreviewImage(img, imageSize) {
-        this.set('judgement.imageHeight', imageSize.height);
-        this.set('judgement.placeHolderImage', img);
+        this.set('question.imageHeight', imageSize.height);
+        this.set('question.placeHolderImage', img);
       }
 
       handleError(error) {

@@ -1,13 +1,3 @@
-<!--
-@license
-Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
@@ -84,10 +74,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       on-error="handleError">
     </firebase-auth>
 
-    <!-- <firebase-document
+     <firebase-document
       path="users/[[user.uid]]"
       data="{{databaseUser}}">
-    </firebase-document> -->
+    </firebase-document> 
 
     <app-location route="{{route}}"></app-location>
     <app-route
@@ -99,31 +89,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <app-drawer-layout fullbleed>
       <!-- Drawer content -->
       <app-drawer id="drawer" swipe-open slot="drawer">
+
         <app-toolbar>
           <span hidden$="[[!signedIn]]"><iron-image id="profileImage" src="[[user.photoURL]]"></iron-image></span>
         </app-toolbar>
+
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="list" href="list">Judgements</a>
           <a name="add" href="add">Ask for judgement</a>
           <paper-button on-tap="signIn" hidden$="[[signedIn]]">Sign In</paper-button>
           <paper-button on-tap="signOut" hidden$="[[!signedIn]]">Sign out</paper-button>
         </iron-selector>
+
       </app-drawer>
 
-      <!-- <iron-pages
+       <iron-pages
           selected="[[page]]"
           attr-for-selected="name"
           fallback-selection="view404"
           role="main">
+
         <jd-list name="list" admin="{{databaseUser.isAdmin}}">
           <paper-icon-button icon="jd-icons:menu" drawer-toggle slot="drawer-toggle"></paper-icon-button>
         </jd-list>
+
         <jd-add name="add" user="[[user]]">
           <paper-icon-button icon="jd-icons:menu" drawer-toggle slot="drawer-toggle"></paper-icon-button>
         </jd-add>
+        
         <jd-view404 name="view404"></jd-view404>
       </iron-pages>
-       -->
+       
     </app-drawer-layout>
   </template>
 
@@ -142,7 +138,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           rootPattern: String,
           routeData: Object,
           subroute: String,
-          // databaseUser: Object,
+          databaseUser: Object,
           user: Object,
           signedIn: Boolean
         };
@@ -190,16 +186,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       signIn() {
-        var provider = new firebase.auth.GoogleAuthProvider();
-        firebase.auth().signInWithPopup(provider)
-          .then(result => {
-            console.log("logged in", result);
-          });
-        // this.$.auth.signInWithPopup()
-        // .then(user =>  {
-        //   console.log("logged in", user);
-        // })
-        // .catch(error => console.error(error));
+        this.$.auth.signInWithPopup()
+        .then(user =>  {
+          console.log("logged in", user);
+        })
+        .catch(error => console.error(error));
       }
 
       signOut() {

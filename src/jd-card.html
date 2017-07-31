@@ -64,29 +64,29 @@
         fade
         sizing="cover"
         lazy-load
-        srcset="[[judgement.imageURL]]"
-        placeholder="[[judgement.placeHolderImage]]"
-        style$="[[computeImageHeight(judgement.imageHeight)]]">
+        srcset="[[question.imageURL]]"
+        placeholder="[[question.placeHolderImage]]"
+        style$="[[computeImageHeight(question.imageHeight)]]">
       </plastic-image>
       
-      <template is="dom-if" if="[[computeIfVideoVisible(judgement.videoURL)]]">
+      <template is="dom-if" if="[[computeIfVideoVisible(question.videoURL)]]">
         <google-youtube
-          video-id="[[extractVideoId(judgement.videoURL)]]"
+          video-id="[[extractVideoId(question.videoURL)]]"
           width="100%"
           rel="0"
           start="5"
           autoplay="0">
         </google-youtube>
       </template>
-      <jd-question question="[[judgement]]"></jd-question>
+      <jd-question question="[[question]]"></jd-question>
 
-      <template is="dom-if" if="[[judgement.answer]]">
-        <jd-answer answer="[[judgement]]"></jd-answer>
+      <template is="dom-if" if="[[question.answer]]">
+        <jd-answer answer="[[question]]"></jd-answer>
       </template>
 
       <template is="dom-if" if="[[admin]]">
         <div hidden$="[[previewMode]]">
-          <jd-card-admin judgement="{{judgement}}"></jd-card-admin>
+          <jd-card-admin question="{{question}}"></jd-card-admin>
         </div>
       </template>
     </div>
@@ -100,7 +100,7 @@
 
       static get properties() {
         return {
-          judgement: {
+          question: {
             type: Object,
             notify: true
           },
