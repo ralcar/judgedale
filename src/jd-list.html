@@ -117,8 +117,8 @@
     </style>
 
     <firebase-query
-      path="judgements"
-      data="{{judgements}}">
+      path="questions"
+      data="{{questions}}">
     </firebase-query>
     
     <app-header-layout has-scrolling-region fullbleed>
@@ -135,14 +135,14 @@
 
       
       <grain-masonry id="cardGrid" transition-duration="500" item-selector="jd-card">
-          <template is="dom-repeat" items="{{judgements}}" as="judgement">  
+          <template is="dom-repeat" items="{{questions}}" as="question">  
 
             <jd-card
-              judgement="{{judgement}}"
+              question="{{question}}"
               admin="[[admin]]"
               on-edit-mode="updateGridLayout"
               on-card-removed="updateGridLayout"
-              style$="height: [[judgement.height]];">
+              style$="height: [[question.height]];">
             </jd-card> 
 
           </template>       
@@ -165,7 +165,7 @@
 
       static get properties() {
         return {
-          judgements: {
+          questions: {
             type: Array,
             value: []
           },
@@ -184,12 +184,12 @@
       };
 
       
-      createCard(judgement) {
+      createCard(question) {
         const card = document.createElement("jd-card");
-        card.judgement = judgement;
+        card.question = question;
         card.admin = this.admin;
-        card.id = judgement.$key;
-        card.style = `height: ${judgement.imageHeight}`;
+        card.id = question.$key;
+        card.style = `height: ${question.imageHeight}`;
 
         return card;
       }
