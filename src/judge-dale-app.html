@@ -22,8 +22,6 @@
   <template>
     <style>
       :host {
-        --app-primary-color: #4285f4;
-        --app-secondary-color: black;
         font-family: arial;
 
         display: block;
@@ -56,8 +54,15 @@
         color: black;
         font-weight: bold;
       }
-</style>
 
+      .auth-button {
+        margin-top: 20px;
+        margin-left: 20px;
+        background: var(--paper-deep-orange-900);
+        color: #fff;
+      }
+</style>
+    <!--Firebase setup-->
     <firebase-app
       auth-domain="judgedale-294f9.firebaseapp.com"
       database-url="https://judgedale-294f9.firebaseio.com"
@@ -79,6 +84,7 @@
       data="{{databaseUser}}">
     </firebase-document> 
 
+    <!--Routing-->
     <app-location route="{{route}}"></app-location>
     <app-route
         route="{{route}}"
@@ -97,12 +103,13 @@
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="list" href="list">Judgements</a>
           <a name="add" href="add">Ask for judgement</a>
-          <paper-button on-tap="signIn" hidden$="[[signedIn]]">Sign In</paper-button>
-          <paper-button on-tap="signOut" hidden$="[[!signedIn]]">Sign out</paper-button>
+          <paper-button class="auth-button" on-tap="signIn" hidden$="[[signedIn]]" raised>Sign In</paper-button>
+          <paper-button class="auth-button" on-tap="signOut" hidden$="[[!signedIn]]" raised>Sign out</paper-button>
         </iron-selector>
 
       </app-drawer>
 
+        <!--The list of pages in the app (+ 404 page)-->
        <iron-pages
           selected="[[page]]"
           attr-for-selected="name"
@@ -152,9 +159,6 @@
 
       constructor() {
         super();
-
-        // Get root pattern for app-route, for more info about `rootPath` see:
-        // https://www.polymer-project.org/2.0/docs/upgrade#urls-in-templates
         this.rootPattern = (new URL(this.rootPath)).pathname;
       }
 

@@ -57,6 +57,7 @@
 </style>
 
     <div class="card" >
+
       <plastic-image
         id="cardImage"
         class$="[[hasGreyScale(imageLoaded)]]"
@@ -70,14 +71,18 @@
       </plastic-image>
       
       <template is="dom-if" if="[[computeIfVideoVisible(question.videoURL)]]">
+
         <google-youtube
           video-id="[[extractVideoId(question.videoURL)]]"
           width="100%"
           rel="0"
           start="5"
-          autoplay="0">
+          autoplay="0"
+          on-google-youtube-state-change="requestFullscreen">
         </google-youtube>
+        
       </template>
+
       <jd-question question="[[question]]"></jd-question>
 
       <template is="dom-if" if="[[question.answer]]">
@@ -124,12 +129,13 @@
       }
 
       extractVideoId(url) {
-        const videoId = url.split('?v=')[1];
+        if(!url) return;
+        const videoId = url.split('?v=')[1]; // regex away lists
         return videoId;
       }
 
       computeIfVideoVisible(videoURL) {
-        if(videoURL && videoURL.length > 10) return true;
+        return !!videoURL;
       }
 
       computeImageHeight(height) {
@@ -139,6 +145,10 @@
 
       hasGreyScale(imageLoaded) {
         return !imageLoaded && !this.previewMode ? 'grey' : '';
+      }
+
+      requestFullscreen(e) {
+        console.log("OK!!", e);
       }
 
     }

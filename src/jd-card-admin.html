@@ -65,7 +65,7 @@
     </div>
 
     <div hidden$="[[!editMode]]">
-      <paper-radio-group class="emotes" selected="{{judgement.emote}}">
+      <paper-radio-group class="emotes" selected="{{question.emote}}">
         <paper-radio-button name="normal">
           <div class="emote-container">
             <img src="../images/emotes/normal.png">
@@ -102,7 +102,7 @@
           </div>
         </paper-radio-button>
       </paper-radio-group>
-      <paper-input label="Pass your judgment" value="{{judgement.answer}}"></paper-input>
+      <paper-input label="Pass your judgment" value="{{question.answer}}"></paper-input>
     </div>
 
   </template>
@@ -115,7 +115,7 @@
 
       static get properties() {
         return {
-          judgement: {
+          question: {
             type: Object,
             notify: true
           },
@@ -133,11 +133,11 @@
       }
 
       rejectQuestion() {
-        const questionKey = this.judgement.$key;
+        const questionKey = this.question.$key;
         if (questionKey) {
           const questionRef = firebase
             .database()
-            .ref('judgements')
+            .ref('questions')
             .child(questionKey);
 
           questionRef.once('value', questionSnap => {

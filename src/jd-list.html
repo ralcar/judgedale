@@ -3,6 +3,7 @@
 <link rel='import' href='../bower_components/iron-icons/iron-icons.html'>
 <link rel='import' href='../bower_components/paper-button/paper-button.html'>
 <link rel='import' href='../bower_components/polymerfire/firebase-query.html'>
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
@@ -134,7 +135,11 @@
       </app-header>
 
       
-      <grain-masonry id="cardGrid" transition-duration="500" item-selector="jd-card">
+      <grain-masonry
+        id="cardGrid"
+        transition-duration="100"
+        item-selector="jd-card">
+
           <template is="dom-repeat" items="{{questions}}" as="question">  
 
             <jd-card
@@ -149,8 +154,6 @@
       </grain-masonry>
       
     </app-header-layout>
-      
-    
 
      <a href="/add">
       <paper-fab icon="jd-icons:create" title="Judge me!"></paper-fab>
@@ -171,36 +174,8 @@
           },
           admin: Boolean
         }
-      }
-
-      snapshotToArray(snapshot) {
-        let returnArr = [];
-        snapshot.forEach(childSnapshot => {
-          let item = childSnapshot.val();
-          item.key = childSnapshot.key;
-          returnArr.push(item);
-        });
-        return returnArr;
-      };
-
+      }      
       
-      createCard(question) {
-        const card = document.createElement("jd-card");
-        card.question = question;
-        card.admin = this.admin;
-        card.id = question.$key;
-        card.style = `height: ${question.imageHeight}`;
-
-        return card;
-      }
-
-      _reverseOrder(a,b) {
-        if (a.$key == b.$key) {
-          return 0;
-        }
-        return a.$key > b.$key ? -1 : 1;
-      }
-
       updateGridLayout() {
         console.log("updating layout");
         this.$.cardGrid.layout();

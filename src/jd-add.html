@@ -6,6 +6,9 @@
 <link rel='import' href='../bower_components/paper-button/paper-button.html'>
 <link rel='import' href='../bower_components/iron-image/iron-image.html'>
 <link rel='import' href='../bower_components/cpol-image/cpol-image.html'>
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="jd-card.html">
 
@@ -122,13 +125,6 @@
 
       <div class="container">
 
-        
-        <div class="preview-container">
-          <h1>Preview Card</h1>
-          <jd-card question="{{question}}" preview-mode></jd-card>
-          <canvas id="canvas" width="100" height="75" hidden></canvas>
-        </div>
-
         <div class="card">
 
           <paper-radio-group selected="{{questionType}}" on-selected-changed="resetForm">
@@ -178,6 +174,12 @@
           <paper-toast id="toast" horizontal-align="right"></paper-toast>
         </div>
 
+        <div class="preview-container">
+          <h1>Preview Card</h1>
+          <jd-card question="{{question}}" preview-mode></jd-card>
+          <canvas id="canvas" width="100" height="75" hidden></canvas>
+        </div>
+
         
       </div>
     </app-header-layout>
@@ -224,10 +226,6 @@
         }
       }
 
-      connectedCallback() {
-        super.connectedCallback();
-      }
-
       openImageSelect() {
         this.$.imageSelect.click();
       }
@@ -266,17 +264,25 @@
         this.set('previewImage', null);
         this.set('question.placeHolderImage',null);
         
+        this.questionType = "image";
+
         this.question = {
               text: '',
               imageURL: '',
               videoURL: ''
             };
+        
       }
       
       createQuestion() {
         
         if (!this.selectedImages && !this.question.videoURL) {
-          console.log("you need to upload an image or submit a video");
+          this.showToastMessage("you need to upload an image or submit a video");
+          return;
+        }
+
+        if(!this.question.text) {
+          this.showToastMessage("You need to ask a question!");
           return;
         }
 
@@ -342,8 +348,6 @@
               created: Date.now(),
               judged: false
             }
-
-            console.log(question);
 
             const updatedQuestion = Object.assign(uploadedFileURLs, question);
             return updatedQuestion;
@@ -449,23 +453,18 @@
 
       }
 
-      updateImage(img) {
-        this.set('question.imageURL', img);
-      }
-
       setPreviewImage(img, imageSize) {
         this.set('question.imageHeight', imageSize.height);
         this.set('question.placeHolderImage', img);
       }
 
       handleError(error) {
-        // console.error(error);
+        console.error(error);
       }
 
-      showRejectedFileError(event) {
-        console.log('rejected')
+      showToastMessage(message) {
         const toast = this.$.toast;
-        toast.text = 'weee';
+        toast.text = message;
         toast.open();
       }
     }
