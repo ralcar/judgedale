@@ -190,7 +190,7 @@
       }
 
       signIn() {
-        this.$.auth.signInWithPopup()
+        this.$.auth.signInWithRedirect()
         .then(user =>  {
           console.log("logged in", user);
         })

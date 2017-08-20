@@ -2,6 +2,7 @@
   "name": "polymer-starter-kit",
   "license": "BSD-3-Clause",
   "devDependencies": {
+    "browser-sync": "^2.18.13",
     "eslint": "^3.19.0",
     "eslint-config-google": "^0.7.0",
     "eslint-plugin-html": "^2.0.0"
@@ -16,7 +17,9 @@
   "dependencies": {
     "browsersync": "0.0.1-security"
   },
-  "builds": [{
-    "preset": "es6-bundled"
-  }]  
+  "builds": [
+    {
+      "preset": "es6-bundled"
+    }
+  ]
 }
